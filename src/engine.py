@@ -7,7 +7,7 @@ RK=(-10,-1,1,10)
 BS=(-11,-9,9,11)
 CM={95:12,91:13,98:14,25:3,21:7,28:11}
 MATE=90000
-BUD=int(os.environ.get('NODES',60000))
+BUD=int(os.environ.get('NODES',100000))
 class Stop(Exception):pass
 def sq(n):return 21+(8-int(n[1]))*10+ord(n[0])-97
 def nm(s):return chr(96+s%10)+str(10-s//10)
@@ -124,6 +124,7 @@ def ev(b):
   else:
    x-=V[-p]+Q[-p][f]
    if p<-1:m+=V[-p]
+ x+=30*((b.count(3)>1)-(b.count(-3)>1))
  if m<2200:
   for f in range(21,99):
    if b[f]==6:x+=E[f]+9*9
