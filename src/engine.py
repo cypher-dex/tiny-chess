@@ -153,12 +153,14 @@ class Eng:
    if y>=be:return y
    if y>al:al=y
   return al
- def ab(s,st,d,al,be,ply):
+ def ab(s,st,d,al,be,ply,nu=1):
   s.n+=1
   if s.n>s.lim:raise Stop
   b,c,cr,ep=st
   k=(tuple(b),c,cr,ep)
   if ply and k in s.seen:return 0
+  ck=hit(b,b.index(6*c),-c)
+  if ck:d+=1
   if d<=0:return s.q(st,al,be)
   e=s.T.get(k)
   tm=None
@@ -166,22 +168,31 @@ class Eng:
    tm=e[3]
    if e[0]>=d and ply:
     if e[1]==0 or(e[1]==1 and e[2]>=be)or(e[1]==2 and e[2]<=al):return e[2]
+  if nu and d>2 and not ck and be<MATE-999 and sum(V[abs(p)]for p in b if 0<p*c<7)>1500:
+   s.seen.add(k)
+   y=-s.ab((b,-c,cr,0),d-3,-be,1-be,ply+1,0)
+   s.seen.discard(k)
+   if y>=be:return be
   ms=gen(st)
   order(b,ms,tm,s.H)
   best=-MATE-1
   a0=al
   bm=None
-  for m in ms:
+  for i,m in enumerate(ms):
    if abs(b[m[1]])==6:return MATE-ply
    s.seen.add(k)
-   y=-s.ab(mk(st,m),d-1,-be,-al,ply+1)
+   t=mk(st,m)
+   if i>3 and d>2 and not b[m[1]]and not ck:
+    y=-s.ab(t,d-2,-al-1,-al,ply+1)
+    if y>al:y=-s.ab(t,d-1,-be,-al,ply+1)
+   else:y=-s.ab(t,d-1,-be,-al,ply+1)
    s.seen.discard(k)
    if y>best:best=y;bm=m
    if y>al:al=y
    if al>=be:
     if not b[m[1]]:s.H[(m[0],m[1])]=s.H.get((m[0],m[1]),0)+d*d
     break
-  if best<-MATE+999 and not hit(b,b.index(6*c),-c):best=0
+  if best<-MATE+999 and not ck:best=0
   s.T[k]=(d,0 if a0<best<be else 1 if best>=be else 2,best,bm)
   return best
  def go(s,st,legal):
